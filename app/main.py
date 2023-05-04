@@ -1,6 +1,6 @@
 import time
 import logging
-from fastapi import FastAPI, Request, Depends,File,UploadFile, status, Response
+from fastapi import FastAPI, Request, Depends, File, UploadFile, status, Response
 from starlette.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, HTMLResponse
@@ -43,33 +43,37 @@ async def startup() -> None:
 async def shutdown() -> None:
     pass
 
-@app.post('/file', response_class=HTMLResponse)
-async def add_photo(upload_files: UploadFile = File(...),) -> JSONResponse:
 
+@app.post("/file", response_class=HTMLResponse)
+async def add_photo(
+    upload_files: UploadFile = File(...),
+) -> JSONResponse:
     url = await downloadfilesproduct(upload_files)
     id = uuid4()
-    file = create_draft(url,id)
+    file = create_draft(url, id)
     data = read_html_from_file(file)
     delete_file(file)
     delete_file(upload_files.filename)
     return data
 
 
-@app.get('/file/{name}',response_class=HTMLResponse)
+@app.get("/file/{name}", response_class=HTMLResponse)
 async def main(name):
     folder_path = pathlib.Path(__file__).parent.resolve()
     upload_path = folder_path.joinpath(pathlib.Path("assets"))
     photo_path = upload_path.joinpath(pathlib.Path(f"{name}"))
-    with open(photo_path, 'r',encoding="utf8") as fh:
+    with open(photo_path, "r", encoding="utf8") as fh:
         data = fh.read()
     return data
 
-@app.get("/",response_class=HTMLResponse)
+
+@app.get("/", response_class=HTMLResponse)
 async def root():
     return """<form id="uploadbanner" enctype="multipart/form-data" method="post" action="file">
    <input id="upload_files" name="upload_files" type="file" />
    <input type="submit" value="submit" id="submit" />
 </form>"""
+
 
 @app.middleware("http")
 async def log_requst(request: Request, call_next):
@@ -92,14 +96,11 @@ async def validation_exception_handler(_request, exc):
 
 @app.exception_handler(StarletteHTTPException)
 async def http_exception(_request, exc):
-    logger.error(
-        f"***ERROR*** Status code {exc.status_code} Message: {exc.detail}"
-    )
+    logger.error(f"***ERROR*** Status code {exc.status_code} Message: {exc.detail}")
     return JSONResponse(
         content={"detail": exc.detail},
         status_code=exc.status_code,
     )
-
 
 
 app.add_middleware(

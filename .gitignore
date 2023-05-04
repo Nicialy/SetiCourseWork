@@ -3,3 +3,21 @@
 \logs/
 desctiption.ods
 .app/assets/
+### Константы
+*.env
+### Python template
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+__pycache__
+
+## Настройки vscode
+.vscode/
+
+## среда
+.venv/
+env
+data/
+.idea
+.pytest_cache
+test2env/
